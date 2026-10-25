@@ -1,0 +1,46 @@
+[
+    {
+        "merged": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-debug-54:\\font_poppins_semibold.ttf.flat",
+        "source": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-main-56:\\font\\poppins_semibold.ttf"
+    },
+    {
+        "merged": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-debug-54:\\drawable_regulatory_compliance_ai_hero_banner.png.flat",
+        "source": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-main-56:\\drawable\\regulatory_compliance_ai_hero_banner.png"
+    },
+    {
+        "merged": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-debug-54:\\font_poppins_bold.ttf.flat",
+        "source": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-main-56:\\font\\poppins_bold.ttf"
+    },
+    {
+        "merged": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-debug-54:\\drawable_verify_your_email_with_cidan.png.flat",
+        "source": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-main-56:\\drawable\\verify_your_email_with_cidan.png"
+    },
+    {
+        "merged": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-debug-54:\\drawable_secure_banking_made_simple.png.flat",
+        "source": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-main-56:\\drawable\\secure_banking_made_simple.png"
+    },
+    {
+        "merged": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-debug-54:\\font_poppins_regular.ttf.flat",
+        "source": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-main-56:\\font\\poppins_regular.ttf"
+    },
+    {
+        "merged": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-debug-54:\\font_poppins_medium.ttf.flat",
+        "source": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-main-56:\\font\\poppins_medium.ttf"
+    },
+    {
+        "merged": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-debug-54:\\raw_loading_video.mp4.flat",
+        "source": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-main-56:\\raw\\loading_video.mp4"
+    },
+    {
+        "merged": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-debug-54:\\drawable_verified_bank_checklist.png.flat",
+        "source": "C:\\Users\\haris\\.gradle\\daemon\\8.12\\com.cidan.app-main-56:\\drawable\\verified_bank_checklist.png"
+    },
+    {
+        "merged": "com.cidan.app-debug-54:/drawable_cidan_logo_crop1.png.flat",
+        "source": "com.cidan.app-main-56:/drawable/cidan_logo_crop1.png"
+    },
+    {
+        "merged": "com.cidan.app-debug-54:/drawable_cidan_logo.png.flat",
+        "source": "com.cidan.app-main-56:/drawable/cidan_logo.png"
+    }
+]
