@@ -6,7 +6,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="CIDAN"
+        android:label="CIDAN Sample"
         android:supportsRtl="true"
         android:theme="@style/Theme.Cidan">
         <activity

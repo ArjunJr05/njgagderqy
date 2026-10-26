@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.cidan.app"
+    namespace = "com.cidan.sample"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.cidan.app"
+        applicationId = "com.cidan.sample"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":cidan"))
+
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.activity:activity-compose:1.10.0")

@@ -14,4 +14,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Cidan"
+include(":cidan")
 include(":app")
