@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,18 +54,25 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import com.cidan.app.R
+import com.cidan.app.data.services.SupabaseService
 import com.cidan.app.ui.components.AuthAppBar
 import com.cidan.app.ui.components.CustomButton
 import com.cidan.app.ui.theme.AppColors
 import com.cidan.app.ui.theme.Poppins
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.util.Log
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LoginScreen(
     onNavigateToOtp: (email: String) -> Unit
 ) {
+    val context = LocalContext.current
     var email by remember { mutableStateOf("ravi.sharma@abcbank.com") }
     var emailError by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
@@ -83,16 +93,25 @@ fun LoginScreen(
         isLoading = true
 
         coroutineScope.launch {
-            delay(750)
-            isLoading = false
-            onNavigateToOtp(trimmed)
+            try {
+                // Dispatch live verification email over SMTP & save to Supabase
+                SupabaseService.getInstance(context).sendAndSaveOtp(trimmed)
+            } catch (e: Exception) {
+                Log.e("CIDAN_LOGIN", "Error during OTP dispatch: ${e.message}")
+            } finally {
+                isLoading = false
+                onNavigateToOtp(trimmed)
+            }
         }
     }
+
+    val isKeyboardOpen = WindowInsets.isImeVisible
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .imePadding()
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -101,7 +120,7 @@ fun LoginScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1.05f)
+                    .weight(1f)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.secure_banking_made_simple),
@@ -125,7 +144,7 @@ fun LoginScreen(
                     )
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                     .background(Color.White)
-                    .padding(horizontal = 24.dp, vertical = 14.dp)
+                    .padding(horizontal = 24.dp, vertical = if (isKeyboardOpen) 10.dp else 14.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -142,32 +161,32 @@ fun LoginScreen(
                             .background(Color(0xFFE2E8F0))
                     )
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(if (isKeyboardOpen) 10.dp else 18.dp))
 
                     // Title
                     Text(
                         text = "Login with your bank email",
                         fontFamily = Poppins,
-                        fontSize = 21.sp,
+                        fontSize = if (isKeyboardOpen) 18.sp else 21.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A),
                         letterSpacing = (-0.3).sp,
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(if (isKeyboardOpen) 2.dp else 4.dp))
 
                     // Subtitle
                     Text(
                         text = "Enter your official bank email to receive a secure OTP code",
                         fontFamily = Poppins,
-                        fontSize = 13.5.sp,
+                        fontSize = if (isKeyboardOpen) 12.sp else 13.5.sp,
                         color = Color(0xFF64748B),
-                        lineHeight = 19.sp,
+                        lineHeight = if (isKeyboardOpen) 16.sp else 19.sp,
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(if (isKeyboardOpen) 10.dp else 18.dp))
 
                     // Email Input Container with rounded purple badge icon
                     Box(
@@ -283,7 +302,7 @@ fun LoginScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(if (isKeyboardOpen) 12.dp else 18.dp))
 
                     // Primary Button: Send OTP Code
                     CustomButton(
@@ -293,31 +312,33 @@ fun LoginScreen(
                         onClick = { validateAndProceed() }
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    if (!isKeyboardOpen) {
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    // Security/Encryption Note Card
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(AppColors.PrimarySoft)
-                            .padding(horizontal = 14.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Shield,
-                            contentDescription = null,
-                            tint = AppColors.Primary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = "Your information is encrypted and securely protected.",
-                            fontFamily = Poppins,
-                            fontSize = 12.sp,
-                            color = AppColors.TextSecondary,
-                            lineHeight = 16.sp
-                        )
+                        // Security/Encryption Note Card
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(AppColors.PrimarySoft)
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Shield,
+                                contentDescription = null,
+                                tint = AppColors.Primary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = "Your information is encrypted and securely protected.",
+                                fontFamily = Poppins,
+                                fontSize = 12.sp,
+                                color = AppColors.TextSecondary,
+                                lineHeight = 16.sp
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))

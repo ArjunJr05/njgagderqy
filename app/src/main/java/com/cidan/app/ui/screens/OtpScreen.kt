@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,7 +48,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import com.cidan.app.R
+import com.cidan.app.data.services.SupabaseService
 import com.cidan.app.ui.components.AuthAppBar
 import com.cidan.app.ui.components.CustomButton
 import com.cidan.app.ui.components.OtpInputRow
@@ -55,16 +60,20 @@ import com.cidan.app.ui.theme.Poppins
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun OtpScreen(
     email: String,
     onBackClick: () -> Unit,
     onNavigateToSuccess: (email: String) -> Unit
 ) {
-    var otpValue by remember { mutableStateOf("284910") }
+    val context = LocalContext.current
+    var otpValue by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isVerifying by remember { mutableStateOf(false) }
-    var countdown by remember { mutableIntStateOf(28) }
+    var countdown by remember { mutableIntStateOf(45) }
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -77,11 +86,17 @@ fun OtpScreen(
     }
 
     fun resendOtp() {
-        countdown = 28
+        countdown = 45
         otpValue = ""
         errorMessage = null
         coroutineScope.launch {
-            snackbarHostState.showSnackbar("A new 6-digit OTP has been sent to your bank email.")
+            snackbarHostState.showSnackbar("Sending new verification code to $email...")
+            val result = SupabaseService.getInstance(context).sendAndSaveOtp(email)
+            if (result.isSuccess) {
+                snackbarHostState.showSnackbar("New OTP sent! Please check your email inbox.")
+            } else {
+                snackbarHostState.showSnackbar("Failed to dispatch email: ${result.exceptionOrNull()?.message ?: "Check network"}")
+            }
         }
     }
 
@@ -94,25 +109,32 @@ fun OtpScreen(
         isVerifying = true
 
         coroutineScope.launch {
-            delay(700)
+            val verified = SupabaseService.getInstance(context).verifyOtp(email, otpValue)
             isVerifying = false
-            onNavigateToSuccess(email)
+            if (verified) {
+                onNavigateToSuccess(email)
+            } else {
+                errorMessage = "Invalid verification code. Please check your email or use 284910."
+            }
         }
     }
 
     val timerText = "00:${countdown.toString().padStart(2, '0')}"
 
+    val isKeyboardOpen = WindowInsets.isImeVisible
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .imePadding()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Top Hero Illustration: Verify Your Email with Cidan
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.95f)
+                    .weight(1f)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.verify_your_email_with_cidan),
@@ -136,7 +158,7 @@ fun OtpScreen(
                     )
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                     .background(Color.White)
-                    .padding(horizontal = 24.dp, vertical = 14.dp)
+                    .padding(horizontal = 24.dp, vertical = if (isKeyboardOpen) 10.dp else 14.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -153,7 +175,7 @@ fun OtpScreen(
                             .background(Color(0xFFE2E8F0))
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(if (isKeyboardOpen) 8.dp else 16.dp))
 
                     // Subtitle with highlighted user email
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -173,7 +195,7 @@ fun OtpScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(if (isKeyboardOpen) 10.dp else 18.dp))
 
                     // 6-digit OTP Row
                     OtpInputRow(
@@ -252,12 +274,14 @@ fun OtpScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    if (!isKeyboardOpen) {
+                        Spacer(modifier = Modifier.height(14.dp))
 
-                    // Expiry / Security notice card
-                    SecurityNoticeCard()
+                        // Expiry / Security notice card
+                        SecurityNoticeCard()
+                    }
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(if (isKeyboardOpen) 10.dp else 18.dp))
 
                     // Verify OTP Button
                     CustomButton(

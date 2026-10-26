@@ -11,4 +11,11 @@ sealed class Screen(val route: String) {
     object UploadDocument : Screen("upload_document/{email}") {
         fun createRoute(email: String) = "upload_document/$email"
     }
+    object ComplianceDashboard : Screen("compliance_dashboard/{email}/{fileName}?showPdfFirst={showPdfFirst}") {
+        fun createRoute(
+            email: String,
+            fileName: String = "CIDAN_Regulatory_Circular.pdf",
+            showPdfFirst: Boolean = false
+        ) = "compliance_dashboard/$email/${android.net.Uri.encode(fileName)}?showPdfFirst=$showPdfFirst"
+    }
 }
